@@ -2,3 +2,4 @@ config.edn
 .hgignore
 .lein-repl-history
 target
+.lein-failures
