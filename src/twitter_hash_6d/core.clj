@@ -4,6 +4,10 @@
             [twitter-hash-6d.util :as util]))
 
 (defn -main
-  "Takes the term from the api and perorms the search"
+  "Takes the term from the api and performs the search"
   [hash-term]
-  (println (search/do-twitter-search-with-paging (string/lower-case hash-term) (util/config :tweets-per-search))))
+  (println 
+    (search/do-twitter-search-with-paging 
+      (string/lower-case hash-term) 
+      (util/config :tweets-per-search) 
+      nil)))

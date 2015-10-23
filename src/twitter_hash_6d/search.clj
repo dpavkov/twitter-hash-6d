@@ -27,21 +27,35 @@
     (<= tweets-to-go 0) 0
     :else tweets-to-go))
 
-(defn do-twitter-search [hash-term tweets-count]
-  (extract-hashes
+(defn do-twitter-search 
+  "Performs a single search. First two terms are mandatory: hash term, which determines filter criteria, and tweets-count,
+   which determines in how many tweets user is interested. The third term is used for paging, determines upper bound on
+   tweets result. If nil is provided, returns all tweets"
+  [hash-term tweets-count max-id]
+  (let [params (if (nil? max-id)
+                 {:q (str "#" hash-term) :count tweets-count}
+                 {:q (str "#" hash-term) :count tweets-count :max_id max-id})]
     (twitter-api/search-tweets :oauth-creds util/my-creds 
-                               :params 
-                               {:q (str "#" hash-term) :count tweets-count})
-    hash-term))
+                               :params params)))
+
+(defn next-max-id
+  "Given twitter search results, finds the upper bound for the next twitter search"
+  [result previous-max-id]
+  (if (empty? (get-in result [:body :statuses]))
+    previous-max-id
+    (dec 
+      (reduce min
+              (map :id (get-in result [:body :statuses]))))))
 
 (defn do-twitter-search-with-paging 
   "Performs the search on hash-term. Returns the result modified by extract-hashes"
-  [hash-term tweets-to-search]
+  [hash-term tweets-to-search max-id]
   (if (> tweets-to-search 0) 
     (let [tweets-count (tweets-this-turn tweets-to-search)
-          current-result (do-twitter-search hash-term tweets-count)
+          current-result (do-twitter-search hash-term tweets-count max-id)
+          hashes (extract-hashes current-result hash-term)
           tweets-left (- tweets-to-search tweets-count)]     
       (if (> tweets-left 0)
-        (concat current-result  (do-twitter-search-with-paging hash-term tweets-left))
-        current-result))
+        (concat hashes (do-twitter-search-with-paging hash-term tweets-left (next-max-id current-result max-id)))
+        hashes))
     '()))

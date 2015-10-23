@@ -23,10 +23,18 @@
   (is (= 0 (tweets-this-turn -1)))
   (is (= 100 (tweets-this-turn 107))))
 
-(deftest test-test-do-twitter-search-with-paging
-  (with-redefs [do-twitter-search (fn [x y] '("oneres" "twores"))]
-    (is (= '() (do-twitter-search-with-paging "hash-term" 0)))
-    (is (= '("oneres" "twores") (do-twitter-search-with-paging "hash-term" 1)))
-    (is (= '("oneres" "twores") (do-twitter-search-with-paging "hash-term" 100)))
-    (is (= '("oneres" "twores" "oneres" "twores") (do-twitter-search-with-paging "hash-term" 101)))
-    (is (= '("oneres" "twores" "oneres" "twores") (do-twitter-search-with-paging "hash-term" 200)))))
+(deftest test-do-twitter-search-with-paging
+  (with-redefs [do-twitter-search (fn [x y z] {})
+                extract-hashes (fn [x y] '("oneres" "twores"))]
+    (is (= '() (do-twitter-search-with-paging "hash-term" 0 nil)))
+    (is (= '("oneres" "twores") (do-twitter-search-with-paging "hash-term" 1 nil)))
+    (is (= '("oneres" "twores") (do-twitter-search-with-paging "hash-term" 100 nil)))
+    (is (= '("oneres" "twores" "oneres" "twores") (do-twitter-search-with-paging "hash-term" 101 nil)))
+    (is (= '("oneres" "twores" "oneres" "twores") (do-twitter-search-with-paging "hash-term" 200 nil)))))
+
+(deftest test-next-max-id
+  (is (= 77 (next-max-id {:body {:statuses []}} 77)))
+  (is (= nil (next-max-id {:body {:statuses []}} nil)))
+  (is (= 75 (next-max-id {:body {:statuses [{:id 76}]}} 77)))
+  (is (= 66 (next-max-id {:body {:statuses [{:id 76} {:id 67}]}} 77)))
+  (is (= 44 (next-max-id {:body {:statuses [{:id 45} {:id 55}] }} 77))))
