@@ -6,9 +6,9 @@
 (def config (edn/read-string (slurp "config.edn")))
 
 (def my-creds (oauth/make-oauth-creds (config :api-consumer-key )
-                                (config :api-consumer-secret)
-                                (config :user-access-token)
-                                (config :user-access-token-secret)))
+                                      (config :api-consumer-secret)
+                                      (config :user-access-token)
+                                      (config :user-access-token-secret)))
 
 (defmulti get-milis 
   "Takes either instance of java.util.Date or java.time.Instant and returns milis from the epoch"

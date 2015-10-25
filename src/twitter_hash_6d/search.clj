@@ -79,4 +79,4 @@
                (> (count current-tweets) 0))
         (concat hashes (do-twitter-search-with-paging hash-term tweets-left (next-max-id current-tweets max-id)))
         hashes))
-  '()))
+    '()))
