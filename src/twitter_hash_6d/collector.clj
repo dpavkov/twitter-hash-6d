@@ -8,15 +8,15 @@
   "Accepts a collection of new terms and a map of old terms grouped by degrees. Returns a set of all items from the new collection
    not contained in the set of old terms"
   [new-terms old-terms]
-  (set/difference new-terms (reduce set/union (vals old-terms))))
+    (set/difference new-terms (reduce set/union (vals old-terms))))
 
 (defn do-search 
   "Takes hash term, converts it to lower case and calls the search for [configurable] no of tweets"
   [hash-term]
     (search/do-twitter-search-with-paging 
-      (string/lower-case hash-term) 
-      (util/config :tweets-per-search) 
-      nil))
+                                      (string/lower-case hash-term) 
+                                      (util/config :tweets-per-search) 
+                                      nil))
 
 (defn search-and-append-results 
   "Accepts a hash term to search for, current connections degree and results of previous searches.
@@ -44,13 +44,13 @@
     returning aggregate results"
   [results degree]
     (reduce #(search-and-append-results %2 degree %) 
-            results 
-            (get-in results [:unique-hashes (dec degree)])))
+          results 
+          (get-in results [:unique-hashes (dec degree)])))
 
 (defn collect
-  "Initialized results map and adds degrees one by one"
+  "Initialized results map and adds degrees one by one. Returns complete map"
   [hash-term]
-  (reduce 
-    add-degree 
-    {:degrees {0 (list hash-term)} :unique-hashes {0 #{hash-term}}} ; initial results
-    (range 1 (inc (util/config :degrees-deep)))))
+    (reduce 
+      add-degree 
+      {:degrees {0 (list hash-term)} :unique-hashes {0 #{hash-term}}} ; initial results
+      (range 1 (inc (util/config :degrees-deep)))))
